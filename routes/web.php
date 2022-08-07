@@ -19,4 +19,8 @@ Route::get('/', function () {
     return Inertia::render('Welcome');
 });
 
+Route::get('/home', function() {
+    return 'hi';
+})->name('home');
+
 Route::resource('products', ProductController::class);

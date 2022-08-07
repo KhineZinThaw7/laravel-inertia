@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ProductRequest;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class ProductController extends Controller
 {
@@ -16,6 +17,10 @@ class ProductController extends Controller
     public function index()
     {
         $products = Product::all();
+
+        return Inertia::render('Index', [
+            'products' => $products
+        ]);
     }
 
     /**
@@ -25,7 +30,7 @@ class ProductController extends Controller
      */
     public function create()
     {
-        //
+        return Inertia::render('Create');
     }
 
     /**
@@ -37,6 +42,8 @@ class ProductController extends Controller
     public function store(ProductRequest $request)
     {
         Product::create($request->only('name', 'price'));
+
+        return to_route('products.index');
     }
 
     /**
@@ -59,6 +66,10 @@ class ProductController extends Controller
     public function edit($id)
     {
         $product = Product::findOrFail($id);
+
+        return Inertia::render('Edit', [
+            'product' => $product
+        ]);
     }
 
     /**
@@ -68,11 +79,13 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(ProductRequest $request, $id)
     {
         $product = Product::findOrFail($id);
 
         $product->update($request->only('name', 'price'));
+
+        return to_route('products.index');
     }
 
     /**
@@ -86,5 +99,7 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
 
         $product->delete();
+
+        return to_route('products.index');
     }
 }
