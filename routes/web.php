@@ -23,4 +23,12 @@ Route::get('/home', function() {
     return 'hi';
 })->name('home');
 
-Route::resource('products', ProductController::class);
+Route::prefix('products')->group(function() {
+    Route::get('/', [ProductController::class, 'index'])->name('products.index');
+    Route::get('/create', [ProductController::class, 'create'])->name('products.create');
+    Route::post('/', [ProductController::class, 'store'])->name('products.store');
+    Route::get('/{product}/edit', [ProductController::class, 'edit'])->name('products.edit');
+    Route::post('/{product}', [ProductController::class, 'update'])->name('products.update');
+    Route::get('/{product}', [ProductController::class, 'show'])->name('products.show');
+    Route::delete('/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
+});
