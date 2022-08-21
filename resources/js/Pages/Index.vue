@@ -28,6 +28,7 @@ const onDelete = (id: any) => {
                 <th>No</th>
                 <th>Name</th>
                 <th>Price</th>
+                <th>Photo</th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -36,6 +37,7 @@ const onDelete = (id: any) => {
                 <td>{{ product.id }}</td>
                 <td>{{ product.name }}</td>
                 <td>{{ product.price }}</td>
+                <td> <img :src="`/storage/${product.photo}`" width="100" height="100"></td>
                 <td>
                   <Link
                     :href="route('products.edit', { product: product.id })"

@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ProductRequest;
+use Inertia\Inertia;
 use App\Models\Product;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
+use App\Http\Requests\ProductRequest;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -41,7 +42,18 @@ class ProductController extends Controller
      */
     public function store(ProductRequest $request)
     {
-        Product::create($request->only('name', 'price'));
+        if ($request->hasFile('photo')) {
+            $file = $request->file('photo');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $dir = '/upload/images';
+            $path = $file->storeAs($dir, $filename);
+        }
+
+        Product::create([
+            'name' => $request->name,
+            'price' => $request->price,
+            'photo' => $path,
+        ]);
 
         return to_route('products.index');
     }
@@ -83,7 +95,22 @@ class ProductController extends Controller
     {
         $product = Product::findOrFail($id);
 
-        $product->update($request->only('name', 'price'));
+        if ($request->hasFile('photo')) {
+            if ($product->photo) {
+                Storage::delete($product->photo);
+            }
+
+            $file = $request->file('photo');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $dir = '/upload/images';
+            $path = $file->storeAs($dir, $filename);
+        }
+
+        $product->update([
+            'name' => $request->name,
+            'price' => $request->price,
+            'photo' => $path ?? $product->photo,
+        ]);
 
         return to_route('products.index');
     }
@@ -99,6 +126,10 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
 
         $product->delete();
+
+        if ($product->photo) {
+            Storage::delete($product->photo);
+        }
 
         return to_route('products.index');
     }

@@ -1,17 +1,33 @@
 <script setup lang="ts">
 import { useForm } from "@inertiajs/inertia-vue3";
+import { ref } from 'vue'
+
+var photRef = ref();
 
 const props = defineProps<{
   product: any;
 }>();
 
 const form = useForm({
-  name: props.product.name,
-  price: props.product.price,
+  name: props.product.name ?? null,
+  price: props.product.price ?? null,
+  photo: '',
+  file: '',
 });
 
+const chooseFile = () => {
+    photRef.value.click();
+};
+
+// アイコン選択イベント
+const onPreviewImage = (event: any) => {
+    const file = event.target.files[0];
+    form.photo = file;
+    form.file = URL.createObjectURL(file);
+};
+
 const onSubmit = () => {
-  form.put(route("products.update", { product: props.product.id }));
+  form.post(route("products.update", { product: props.product.id }));
 };
 </script>
 <template>
@@ -38,6 +54,19 @@ const onSubmit = () => {
                   {{ form.errors.price }}
                 </div>
                 <br />
+                <input ref="photRef" type="file" accept="image/jpeg, image/jpg, image/png" @change="onPreviewImage" style="display: none" />
+                <a class="btn btn-info" @click.prevent="chooseFile">Choose Photo</a>
+                <div v-if="form.file">
+                    <img :src="form.file" width="100" height="100" />
+                </div>
+                <div v-else>
+                    <img :src="`/storage/${props.product.photo}`" width="100" height="100" />
+                </div>
+                 <div v-if="form.errors.photo" class="text-danger">
+                  {{ form.errors.photo }}
+                </div>
+                <br><br>
+                <br>
                 <button type="submit" class="btn btn-primary">Update</button>
               </form>
             </div>
